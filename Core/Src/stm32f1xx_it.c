@@ -203,11 +203,33 @@ void DMA1_Channel6_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-
+  uint8_t clear;
+  uint8_t temp;
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
+  if(__HAL_UART_GET_FLAG(&huart2,UART_IT_IDLE) != RESET){
+    //接收完一帧数据后，清空标志位，并停止DMA
+    clear = USART2 -> SR;
+    clear = USART2 -> DR;
+    (void) clear;
+    HAL_UART_DMAStop(&huart2); 
 
+    //记录数据长度，拷贝数据
+    temp = __HAL_DMA_GET_COUNTER(&hdma_usart2_rx);
+    USART2_RX_LEN = (USART2_RX_BUFFER_SIZE - temp);
+    memcpy(USART2_RX_BUF,USART2_DMA_RX_BUF,USART2_RX_LEN);
+
+    //
+    if(USART2_RX_LEN == 25 && USART2_RX_BUF[0] == 0x0F)
+    {
+        Sbus_Data_Count(USART2_RX_BUF); // 调用你的解析函数
+        rc_flag = 1;  // 解析完成标志
+    }
+
+    //重新开启DMA
+    HAL_UART_Receive_DMA(&huart2,USART2_DMA_RX_BUF,USART2_RX_BUFFER_SIZE);
+  }
   /* USER CODE END USART2_IRQn 1 */
 }
 

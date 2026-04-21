@@ -31,6 +31,11 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <string.h>
+#include <stdint.h>
+#include "cmsis_os.h"
+#include "FreeRTOS.h"
+#include "sbus.h"
 
 /* USER CODE END Includes */
 
@@ -91,7 +96,14 @@ void Error_Handler(void);
 #define LEFT_1_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
+#define USART2_RX_BUFFER_SIZE  26    // 接收缓冲区大小
 
+extern uint8_t  USART2_DMA_RX_BUF[USART2_RX_BUFFER_SIZE];  // DMA接收缓冲区
+extern uint8_t  USART2_RX_BUF[USART2_RX_BUFFER_SIZE];      // 数据处理缓冲区
+extern uint16_t USART2_RX_LEN;                             // 一帧数据长度
+
+// FreeRTOS 信号量（用于通知任务数据已收到）
+extern osSemaphoreId_t uart2RxSemaphoreHandle;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -23,8 +23,12 @@ virtualFolder:
                 - path: ../Core/Src/main.c
                 - path: ../Core/Src/gpio.c
                 - path: ../Core/Src/freertos.c
+                - path: ../Core/Src/dma.c
+                - path: ../Core/Src/tim.c
+                - path: ../Core/Src/usart.c
                 - path: ../Core/Src/stm32f1xx_it.c
                 - path: ../Core/Src/stm32f1xx_hal_msp.c
+                - path: ../Core/Src/sbus.c
               folders: []
     - name: Drivers
       files: []
@@ -42,6 +46,9 @@ virtualFolder:
             - path: ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c
             - path: ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c
             - path: ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_exti.c
+            - path: ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c
+            - path: ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c
+            - path: ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c
           folders: []
         - name: CMSIS
           files:
@@ -76,8 +83,8 @@ targets:
       defineList:
         - USE_HAL_DRIVER
         - STM32F103xB
-        - STM32F10X_MD
       incList:
+        - .
         - ../Core/Inc
         - ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy
         - ../Drivers/STM32F1xx_HAL_Driver/Inc
