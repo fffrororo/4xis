@@ -1,0 +1,15 @@
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/timers.c
+4_axis\timers.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdlib.h
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+4_axis\timers.o: D:\keil5\ARM\ARMCC\Bin\..\include\stddef.h
+4_axis\timers.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdint.h
+4_axis\timers.o: ../Core/Inc/FreeRTOSConfig.h
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3/portmacro.h
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
+4_axis\timers.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
