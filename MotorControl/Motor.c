@@ -18,3 +18,4 @@ void Motor_Setspeed(Motor_Struct *motor){
 	__HAL_TIM_SET_COMPARE(motor->htim, motor->channel, motor->speed);
 
 }
+

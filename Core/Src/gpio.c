@@ -42,10 +42,6 @@
      PA5   ------> SPI1_SCK
      PA6   ------> SPI1_MISO
      PA7   ------> SPI1_MOSI
-     PB10   ------> I2C2_SCL
-     PB11   ------> I2C2_SDA
-     PB6   ------> I2C1_SCL
-     PB7   ------> I2C1_SDA
 */
 void MX_GPIO_Init(void)
 {
@@ -69,12 +65,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : Laser_SCL_Pin Laser_SDA_Pin IMU_SCL_Pin IMU_SDA_Pin */
-  GPIO_InitStruct.Pin = Laser_SCL_Pin|Laser_SDA_Pin|IMU_SCL_Pin|IMU_SDA_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED4_Pin LED3_Pin */
   GPIO_InitStruct.Pin = LED4_Pin|LED3_Pin;

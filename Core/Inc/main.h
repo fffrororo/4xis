@@ -38,6 +38,7 @@ extern "C" {
 #include "sbus.h"
 #include "tim.h"
 #include "Motor.h"
+#include "i2c.h"
 
 /* USER CODE END Includes */
 
