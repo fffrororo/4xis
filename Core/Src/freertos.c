@@ -83,7 +83,10 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-
+  Motor_Init(&Left_top);
+  Motor_Init(&Left_bottom);
+  Motor_Init(&Right_top);
+  Motor_Init(&Right_bottom);
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -132,6 +135,7 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
+
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
@@ -150,6 +154,11 @@ void StartMotorTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
+    //设置电机速度
+    Motor_Setspeed(&Left_top);
+    Motor_Setspeed(&Left_bottom);
+    Motor_Setspeed(&Right_top);
+    Motor_Setspeed(&Right_bottom);
     osDelay(1);
   }
   /* USER CODE END StartMotorTask */
