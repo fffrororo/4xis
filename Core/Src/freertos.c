@@ -30,6 +30,10 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+Motor_Struct Left_top ={.htim = &htim3,.channel = TIM_CHANNEL_1,.speed = 0};
+Motor_Struct Left_bottom ={.htim = &htim4,.channel = TIM_CHANNEL_2,.speed = 0};
+Motor_Struct Right_top ={.htim = &htim1,.channel = TIM_CHANNEL_3,.speed = 0};
+Motor_Struct Right_bottom ={.htim = &htim2,.channel = TIM_CHANNEL_2,.speed = 0};
 
 /* USER CODE END PTD */
 
@@ -54,6 +58,13 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for Motor_Task */
+osThreadId_t Motor_TaskHandle;
+const osThreadAttr_t Motor_Task_attributes = {
+  .name = "Motor_Task",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -61,6 +72,7 @@ const osThreadAttr_t defaultTask_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
+void StartMotorTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -94,6 +106,9 @@ void MX_FREERTOS_Init(void) {
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
+  /* creation of Motor_Task */
+  Motor_TaskHandle = osThreadNew(StartMotorTask, NULL, &Motor_Task_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -120,6 +135,24 @@ void StartDefaultTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
+}
+
+/* USER CODE BEGIN Header_StartMotorTask */
+/**
+* @brief Function implementing the Motor_Task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartMotorTask */
+void StartMotorTask(void *argument)
+{
+  /* USER CODE BEGIN StartMotorTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartMotorTask */
 }
 
 /* Private application code --------------------------------------------------*/

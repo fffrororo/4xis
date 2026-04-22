@@ -36,6 +36,8 @@ extern "C" {
 #include "cmsis_os.h"
 #include "FreeRTOS.h"
 #include "sbus.h"
+#include "tim.h"
+#include "Motor.h"
 
 /* USER CODE END Includes */
 

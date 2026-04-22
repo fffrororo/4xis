@@ -14,6 +14,7 @@
                 "D:\\keil5\\ARM\\ARMCC\\include",
                 "D:\\keil5\\ARM\\ARMCC\\include\\rw",
                 "d:\\Stm32CubeMx.file\\4_axis\\MDK-ARM",
+                "d:\\Stm32CubeMx.file\\4_axis\\MotorControl",
                 "d:\\Stm32CubeMx.file\\4_axis\\Core\\Src",
                 "d:\\Stm32CubeMx.file\\4_axis\\Drivers\\STM32F1xx_HAL_Driver\\Src",
                 "d:\\Stm32CubeMx.file\\4_axis\\Middlewares\\Third_Party\\FreeRTOS\\Source",
