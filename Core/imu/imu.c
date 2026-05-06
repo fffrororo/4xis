@@ -58,6 +58,11 @@ void imu_init(void) {
 
 }
 
+/**
+ * @brief  Get the gyroscope data
+ * @param  gyro: Pointer to store the gyroscope data
+ * @retval None
+ */
 void imu_GetGyro(gyro_data *gyro){
     //xyz顺序，高八位在前
     uint8_t hight = 0;
@@ -76,7 +81,11 @@ void imu_GetGyro(gyro_data *gyro){
     gyro->gz = ((hight<<8)|low) / 32768.0f * 2000;
 
 }
-
+/**
+ * @brief  Get the acceleration data
+ * @param  acc: Pointer to store the acceleration data
+ * @retval None
+ */
 void imu_GetAcc(acc_data *acc){
     //xyz顺序，高八位在前
     uint8_t hight = 0;
@@ -94,7 +103,11 @@ void imu_GetAcc(acc_data *acc){
     imu_Read_Reg(0x40,&low);
     acc->az = ((hight<<8)|low) / 32768.0f * 2;
 }
-
+/**
+ * @brief  Get the gyroscope and acceleration data
+ * @param  Gyro_Acc: Pointer to store the gyroscope and acceleration data
+ * @retval None
+ */
 void imu_GetGyro_Acc(Gyro_Acc_struct *Gyro_Acc){
     //1.读取角速度
     imu_GetGyro(&Gyro_Acc->gyro);

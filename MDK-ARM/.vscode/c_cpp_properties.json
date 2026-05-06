@@ -12,6 +12,7 @@
                 "d:\\Stm32CubeMx.file\\4_axis\\Middlewares\\Third_Party\\FreeRTOS\\Source\\CMSIS_RTOS_V2",
                 "d:\\Stm32CubeMx.file\\4_axis\\Middlewares\\Third_Party\\FreeRTOS\\Source\\portable\\RVDS\\ARM_CM3",
                 "d:\\Stm32CubeMx.file\\4_axis\\Core\\MotorControl",
+                "d:\\Stm32CubeMx.file\\4_axis\\Core\\si24r1",
                 "D:\\keil5\\ARM\\ARMCC\\include",
                 "D:\\keil5\\ARM\\ARMCC\\include\\rw",
                 "d:\\Stm32CubeMx.file\\4_axis\\MDK-ARM",

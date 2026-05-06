@@ -32,6 +32,8 @@ virtualFolder:
                 - path: ../Core/imu/imu.c
                 - path: ../Core/MotorControl/Motor.c
                 - path: ../Core/Src/i2c.c
+                - path: ../Core/si24r1/SI24R1.c
+                - path: ../Core/Src/spi.c
               folders: []
     - name: Drivers
       files: []
@@ -53,6 +55,7 @@ virtualFolder:
             - path: ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c
             - path: ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c
             - path: ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c
+            - path: ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c
           folders: []
         - name: CMSIS
           files:
@@ -100,6 +103,7 @@ targets:
         - .cmsis/include
         - RTE/_4_axis
         - ../Core/MotorControl
+        - ../Core/si24r1
       libList: []
     excludeList: []
     settings: {}
