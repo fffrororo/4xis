@@ -79,6 +79,9 @@ void SI24R1_TX_Mode(void);
 uint8_t SI24R1_RxPacket(uint8_t *rxbuf);
 uint8_t SI24R1_TxPacket(uint8_t *txbuf);
 
+//移植的printf
+int fputc(int ch, FILE *f);
+void SI24R1_Printf(char *format, ...);
 //********************************************************************************************************************//
 #endif
 

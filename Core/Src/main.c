@@ -103,7 +103,7 @@ int main(void)
   MX_I2C2_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_UART_Receive_DMA(&huart2,uart_dma_data_buf,UART_DMA_BUF_SIZE);
   /* USER CODE END 2 */
 
   /* Init scheduler */

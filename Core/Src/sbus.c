@@ -1,9 +1,24 @@
 #include "main.h"
 #include "sbus.h"
 
+#define SBUS_FRAME_LEN 25
+uint8_t sbus_frame[SBUS_FRAME_LEN];
+uint8_t sbus_index = 0;
+
 uint16_t CH[18];  // 通道值
 uint8_t  rc_flag = 0;
 
+
+/**
+ * @brief 解析SBUS数据
+ * @param buf: 接收到的数据
+CH[0]	Roll 横滚
+CH[1]	Pitch 俯仰
+CH[2]	Throttle 油门
+CH[3]	Yaw 偏航
+CH[4]	AUX1
+CH[5]	AUX2
+*/
 //数据解析函数，传入usart缓冲区数据指针
 void Sbus_Data_Count(uint8_t *buf)
 {
@@ -24,4 +39,44 @@ void Sbus_Data_Count(uint8_t *buf)
 	CH[13] = ((int16_t)buf[19] >> 7 | ((int16_t)buf[20] << 1 )  | (int16_t)buf[21] <<  9 ) & 0x07FF;
 	CH[14] = ((int16_t)buf[21] >> 2 | ((int16_t)buf[22] << 6 )) & 0x07FF;
 	CH[15] = ((int16_t)buf[22] >> 5 | ((int16_t)buf[23] << 3 )) & 0x07FF;
+}
+
+void process_sbus(uint8_t *data,uint16_t len)
+{
+	uint16_t i;
+
+	for(i=0;i<len;i++)
+	{
+		uint8_t byte = data[i];
+
+		//等待帧头
+		if(sbus_index == 0 )
+		{
+			if(byte == 0x0F)
+			{
+				sbus_frame[sbus_index++] = byte;
+			}
+
+		}
+		else
+		{
+			//收集数据
+			sbus_frame[sbus_index++] = byte;
+			//
+			if(sbus_index >= SBUS_FRAME_LEN)
+            {
+                // 校验帧尾
+                if(sbus_frame[24] == 0x00)
+                {
+                    Sbus_Data_Count(sbus_frame);
+
+                    rc_flag = 1;
+                }
+
+                // 重新同步
+                sbus_index = 0;
+			}
+
+		}
+	}
 }

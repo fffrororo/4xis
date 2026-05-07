@@ -112,8 +112,8 @@ void SI24R1_RX_Mode(void)
 	SI24R1_Write_Reg(SI24R1_WRITE_REG + RF_CH, SI24R1_CHANNEL);                 						
 	// 设置接收数据管道0的有效载荷宽度
 	SI24R1_Write_Reg(SI24R1_WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH);  						
-	// 配置射频设置（传输速率和功率）（1Mbps，7dBm）
-	SI24R1_Write_Reg(SI24R1_WRITE_REG + RF_SETUP, 0x06);            						
+	// 配置射频设置（传输速率和功率）（2Mbps，4dBm）
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + RF_SETUP, 0x0e);            						
 	// 配置芯片基本参数（上电、CRC使能等）
 	SI24R1_Write_Reg(SI24R1_WRITE_REG + CONFIG, 0x0f);              						
 	// 清除状态寄存器标志位
@@ -146,8 +146,8 @@ void SI24R1_TX_Mode(void)
 	SI24R1_Write_Reg(SI24R1_WRITE_REG + SETUP_RETR, 0x0a);   
 	// 选择射频频道0x40
 	SI24R1_Write_Reg(SI24R1_WRITE_REG + RF_CH, SI24R1_CHANNEL);          
-	// 设置数据传输速率为1Mbps，输出功率为+7dBm
-	SI24R1_Write_Reg(SI24R1_WRITE_REG + RF_SETUP, 0x06);     
+	// 设置数据传输速率为2Mbps，输出功率为+4dBm
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + RF_SETUP, 0x0e);     
 	// 配置寄存器：启用CRC校验，16位CRC校验，上电
 	SI24R1_Write_Reg(SI24R1_WRITE_REG + CONFIG, 0x0e);       
 	CE_HIGH;  // 拉高CE引脚，激活芯片开始工作
@@ -209,39 +209,44 @@ uint8_t SI24R1_TxPacket(uint8_t *txbuf)
 }
 
 /**********移植printf*************/
-// 无线发送 单个字节
-void SI24R1_SendByte(uint8_t ch)
-{
-	uint8_t buf[1] = {ch};
-	SI24R1_TxPacket(buf);  // 调用你现有的发送函数
-}
-
-// 无线发送 字符串
+// 发送字符串
 void SI24R1_SendString(char *str)
 {
-	while (*str)
-	{
-		SI24R1_SendByte(*str);
-		str++;
-	}
+    uint8_t buf[TX_PLOAD_WIDTH] = {0};
+
+    strncpy((char*)buf, str, TX_PLOAD_WIDTH - 1);
+	buf[TX_PLOAD_WIDTH - 1] = '\0';
+
+    SI24R1_TxPacket(buf);
 }
 // 1. 重定向 fputc：无线发送单个字符
-int SI24R1_fputc(int ch, FILE *f)
+int fputc(int ch, FILE *f)
 {
-	SI24R1_SendByte(ch);   // 串口是 Serial_SendBits(ch)
-	return ch;             // 原样返回
+    uint8_t buf[TX_PLOAD_WIDTH] = {0};
+
+    buf[0] = ch;
+
+    SI24R1_TxPacket(buf);
+
+    return ch;
 }
 
 // 2. 无线版 printf：用法和 printf / Serial_Printf 完全一样
 void SI24R1_Printf(char *format, ...)
 {
-	char string[100];      // 和你串口一样的缓冲区大小
-	va_list arg;
+	SI24R1_TX_Mode();
+	osDelay(1);
 
-	va_start(arg, format);
-	vsprintf(string, format, arg);
-	va_end(arg);
+    char string[TX_PLOAD_WIDTH] = {0};
 
-	SI24R1_SendString(string);  // 串口是 Serial_SendString(string)
+    va_list arg;
+
+    va_start(arg, format);
+    vsnprintf(string, sizeof(string), format, arg);
+    va_end(arg);
+
+    SI24R1_TxPacket((uint8_t *)string);
+
+	SI24R1_RX_Mode();
 }
 

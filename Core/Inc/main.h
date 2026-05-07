@@ -44,7 +44,7 @@ extern "C" {
 #include "Motor.h"
 #include "i2c.h"
 #include "spi.h"
-
+#include "dma.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

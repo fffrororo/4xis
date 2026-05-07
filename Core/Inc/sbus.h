@@ -10,7 +10,7 @@ extern uint16_t CH[18];  // 通道值
 extern uint8_t  rc_flag;
 
 void Sbus_Data_Count(uint8_t *buf);
-
+void process_sbus(uint8_t *data,uint16_t len);
 
 
 #ifdef __cplusplus

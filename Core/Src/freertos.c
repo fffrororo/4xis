@@ -159,7 +159,7 @@ void StartMotorTask(void *argument)
     Motor_Setspeed(&Left_bottom);
     Motor_Setspeed(&Right_top);
     Motor_Setspeed(&Right_bottom);
-    osDelay(1);
+    osDelay(6);
   }
   /* USER CODE END StartMotorTask */
 }

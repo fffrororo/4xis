@@ -7,7 +7,8 @@
  * @param  data: Data to be written
  * @retval None
  */
-void imu_Write_Reg(uint8_t reg, uint8_t data){
+void imu_Write_Reg(uint8_t reg, uint8_t data)
+{
     //1. Write the data to the register
     HAL_I2C_Mem_Write(&hi2c1, IMU_ADDR, reg, I2C_MEMADD_SIZE_8BIT, &data, 1, 1000);
 
@@ -19,7 +20,8 @@ void imu_Write_Reg(uint8_t reg, uint8_t data){
  * @param  data: Pointer to store the read data
  * @retval None
  */
-void imu_Read_Reg(uint8_t reg, uint8_t *data){ 
+void imu_Read_Reg(uint8_t reg, uint8_t *data)
+{ 
     //1. Read the data from the register
     HAL_I2C_Mem_Read(&hi2c1, IMU_ADDR, reg, I2C_MEMADD_SIZE_8BIT, data, 1, 1000);
 }
@@ -28,7 +30,8 @@ void imu_Read_Reg(uint8_t reg, uint8_t *data){
  * @param  None
  * @retval None
  */
-void imu_init(void) { 
+void imu_init(void) 
+{ 
     //1，重启芯片，重置寄存器的值 => 写电源管理器0x6B
     imu_Write_Reg(0x6B,0x80);
     uint8_t data;
@@ -63,7 +66,8 @@ void imu_init(void) {
  * @param  gyro: Pointer to store the gyroscope data
  * @retval None
  */
-void imu_GetGyro(gyro_data *gyro){
+void imu_GetGyro(gyro_data *gyro)
+{
     //xyz顺序，高八位在前
     uint8_t hight = 0;
     uint8_t low = 0;
@@ -86,7 +90,8 @@ void imu_GetGyro(gyro_data *gyro){
  * @param  acc: Pointer to store the acceleration data
  * @retval None
  */
-void imu_GetAcc(acc_data *acc){
+void imu_GetAcc(acc_data *acc)
+{
     //xyz顺序，高八位在前
     uint8_t hight = 0;
     uint8_t low = 0;
@@ -108,7 +113,8 @@ void imu_GetAcc(acc_data *acc){
  * @param  Gyro_Acc: Pointer to store the gyroscope and acceleration data
  * @retval None
  */
-void imu_GetGyro_Acc(Gyro_Acc_struct *Gyro_Acc){
+void imu_GetGyro_Acc(Gyro_Acc_struct *Gyro_Acc)
+{
     //1.读取角速度
     imu_GetGyro(&Gyro_Acc->gyro);
     //2.读取加速度

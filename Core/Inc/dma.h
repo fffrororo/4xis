@@ -35,7 +35,9 @@ extern "C" {
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */
+#define UART_DMA_BUF_SIZE 256
 
+extern uint8_t uart_dma_data_buf[UART_DMA_BUF_SIZE];
 /* USER CODE END Private defines */
 
 void MX_DMA_Init(void);

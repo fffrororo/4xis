@@ -28,7 +28,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
-
+void UART_PROCESS(void);
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -218,36 +218,46 @@ void DMA1_Channel7_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-  uint8_t clear;
-  uint8_t temp;
   /* USER CODE END USART2_IRQn 0 */
-  HAL_UART_IRQHandler(&huart2);
+  
   /* USER CODE BEGIN USART2_IRQn 1 */
-  if(__HAL_UART_GET_FLAG(&huart2,UART_IT_IDLE) != RESET){
-    //接收完一帧数据后，清空标志位，并停止DMA
-    clear = USART2 -> SR;
-    clear = USART2 -> DR;
-    (void) clear;
-    HAL_UART_DMAStop(&huart2); 
-
-    //记录数据长度，拷贝数据
-    temp = __HAL_DMA_GET_COUNTER(&hdma_usart2_rx);
-    USART2_RX_LEN = (USART2_RX_BUFFER_SIZE - temp);
-    memcpy(USART2_RX_BUF,USART2_DMA_RX_BUF,USART2_RX_LEN);
-
-    //
-    if(USART2_RX_LEN == 25 && USART2_RX_BUF[0] == 0x0F)
-    {
-        Sbus_Data_Count(USART2_RX_BUF); // 调用你的解析函数
-        rc_flag = 1;  // 解析完成标志
-    }
-
-    //重新开启DMA
-    HAL_UART_Receive_DMA(&huart2,USART2_DMA_RX_BUF,USART2_RX_BUFFER_SIZE);
+  if(__HAL_UART_GET_FLAG(&huart2,UART_FLAG_IDLE) != RESET)
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart2);
+    UART_PROCESS();
   }
+  
+  HAL_UART_IRQHandler(&huart2);
   /* USER CODE END USART2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
+//环形缓冲区处理数据
+volatile uint16_t old_pos = 0;
 
+void UART_PROCESS(void)
+{
+  uint16_t new_pos;
+  new_pos = UART_DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart2_rx);
+
+  if(new_pos != old_pos)
+  {
+    //1.正常情况
+    if(new_pos > old_pos)
+    {
+      process_sbus(&uart_dma_data_buf[old_pos],new_pos-old_pos);
+    }
+    //2.数据溢出
+    else
+    {
+      process_sbus(&uart_dma_data_buf[old_pos],UART_DMA_BUF_SIZE-old_pos);
+      if(new_pos > 0)
+      {
+        process_sbus(&uart_dma_data_buf[0],new_pos);
+      }
+    }
+    //更新dma读取指针
+    old_pos = new_pos;
+  }
+}
 /* USER CODE END 1 */

@@ -30,7 +30,7 @@
 /*----------------------------------------------------------------------------*/
 
 /* USER CODE BEGIN 1 */
-
+uint8_t uart_dma_data_buf[UART_DMA_BUF_SIZE] = {0};
 /* USER CODE END 1 */
 
 /**
