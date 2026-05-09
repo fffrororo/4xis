@@ -19,22 +19,38 @@ virtualFolder:
           files: []
           folders:
             - name: Core
-              files:
-                - path: ../Core/Src/main.c
-                - path: ../Core/Src/gpio.c
-                - path: ../Core/Src/freertos.c
-                - path: ../Core/Src/dma.c
-                - path: ../Core/Src/tim.c
-                - path: ../Core/Src/usart.c
-                - path: ../Core/Src/stm32f1xx_it.c
-                - path: ../Core/Src/stm32f1xx_hal_msp.c
-                - path: ../Core/Src/sbus.c
-                - path: ../Core/imu/imu.c
-                - path: ../Core/MotorControl/Motor.c
-                - path: ../Core/Src/i2c.c
-                - path: ../Core/si24r1/SI24R1.c
-                - path: ../Core/Src/spi.c
-              folders: []
+              files: []
+              folders:
+                - name: Sys
+                  files:
+                    - path: ../Core/Src/dma.c
+                    - path: ../Core/Src/gpio.c
+                    - path: ../Core/Src/i2c.c
+                    - path: ../Core/Src/main.c
+                    - path: ../Core/Src/spi.c
+                    - path: ../Core/Src/stm32f1xx_hal_msp.c
+                    - path: ../Core/Src/stm32f1xx_it.c
+                    - path: ../Core/Src/system_stm32f1xx.c
+                    - path: ../Core/Src/tim.c
+                    - path: ../Core/Src/usart.c
+                    - path: ../Core/Src/freertos.c
+                  folders: []
+                - name: Hardware
+                  files:
+                    - path: ../Core/hardware/imu.c
+                    - path: ../Core/hardware/Motor.c
+                    - path: ../Core/hardware/sbus.c
+                    - path: ../Core/hardware/SI24R1.c
+                  folders: []
+                - name: Application
+                  files:
+                    - path: ../Core/application/app_flight.c
+                  folders: []
+                - name: commond_caculate
+                  files:
+                    - path: ../Core/common_caculate/filter.c
+                    - path: ../Core/common_caculate/quaternion.c
+                  folders: []
     - name: Drivers
       files: []
       folders:
@@ -92,7 +108,6 @@ targets:
         - STM32F103xB
       incList:
         - .
-        - ../Core/Inc
         - ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy
         - ../Drivers/STM32F1xx_HAL_Driver/Inc
         - ../Drivers/CMSIS/Device/ST/STM32F1xx/Include
@@ -102,8 +117,10 @@ targets:
         - ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3
         - .cmsis/include
         - RTE/_4_axis
-        - ../Core/MotorControl
-        - ../Core/si24r1
+        - ../Core/application
+        - ../Core/common_caculate
+        - ../Core/hardware
+        - ../Core/Inc
       libList: []
     excludeList: []
     settings: {}

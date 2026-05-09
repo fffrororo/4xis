@@ -58,11 +58,11 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for Motor_Task */
-osThreadId_t Motor_TaskHandle;
-const osThreadAttr_t Motor_Task_attributes = {
-  .name = "Motor_Task",
-  .stack_size = 256 * 4,
+/* Definitions for Flight_Task */
+osThreadId_t Flight_TaskHandle;
+const osThreadAttr_t Flight_Task_attributes = {
+  .name = "Flight_Task",
+  .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 
@@ -72,7 +72,7 @@ const osThreadAttr_t Motor_Task_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
-void StartMotorTask(void *argument);
+void StartFlightTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -83,10 +83,7 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-  Motor_Init(&Left_top);
-  Motor_Init(&Left_bottom);
-  Motor_Init(&Right_top);
-  Motor_Init(&Right_bottom);
+  
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -109,8 +106,8 @@ void MX_FREERTOS_Init(void) {
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
-  /* creation of Motor_Task */
-  Motor_TaskHandle = osThreadNew(StartMotorTask, NULL, &Motor_Task_attributes);
+  /* creation of Flight_Task */
+  Flight_TaskHandle = osThreadNew(StartFlightTask, NULL, &Flight_Task_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -141,27 +138,23 @@ void StartDefaultTask(void *argument)
   /* USER CODE END StartDefaultTask */
 }
 
-/* USER CODE BEGIN Header_StartMotorTask */
+/* USER CODE BEGIN Header_StartFlightTask */
 /**
-* @brief Function implementing the Motor_Task thread.
+* @brief Function implementing the Flight_Task thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartMotorTask */
-void StartMotorTask(void *argument)
+/* USER CODE END Header_StartFlightTask */
+void StartFlightTask(void *argument)
 {
-  /* USER CODE BEGIN StartMotorTask */
+  /* USER CODE BEGIN StartFlightTask */
   /* Infinite loop */
   for(;;)
   {
-    //设置电机速度
-    Motor_Setspeed(&Left_top);
-    Motor_Setspeed(&Left_bottom);
-    Motor_Setspeed(&Right_top);
-    Motor_Setspeed(&Right_bottom);
+    
     osDelay(6);
   }
-  /* USER CODE END StartMotorTask */
+  /* USER CODE END StartFlightTask */
 }
 
 /* Private application code --------------------------------------------------*/

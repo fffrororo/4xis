@@ -11,17 +11,19 @@ extern "C" {
 //读写地址
 #define IMU_ADDR_WRITE (IMU_ADDR << 1)//0xD0
 #define IMU_ADDR_READ ((IMU_ADDR << 1) | 1)//0xD1
+
+
 //陀螺仪数据
 typedef struct{
-    float gx;
-    float gy;
-    float gz;
+    int16_t gx;
+    int16_t gy;
+    int16_t gz;
 } gyro_data;
 
 typedef struct{
-    float ax;
-    float ay;
-    float az;
+    int16_t ax;
+    int16_t ay;
+    int16_t az;
 } acc_data;
 //陀螺仪和加速度数据
 typedef struct{
@@ -45,5 +47,4 @@ void imu_GetGyro_Acc(Gyro_Acc_struct *Gyro_Acc);
 #ifdef __cplusplus
 }
 #endif
-
 #endif

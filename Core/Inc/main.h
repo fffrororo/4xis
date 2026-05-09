@@ -31,20 +31,26 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+// C
 #include <string.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
-
+#include "math.h"
+#include <stdlib.h>
+// STM32
 #include "cmsis_os.h"
 #include "FreeRTOS.h"
-#include "sbus.h"
 #include "usart.h"
 #include "tim.h"
-#include "Motor.h"
 #include "i2c.h"
 #include "spi.h"
 #include "dma.h"
+// User
+#include "sbus.h"
+#include "Motor.h"
+#include "imu.h"
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

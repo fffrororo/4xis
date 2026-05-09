@@ -1,6 +1,75 @@
 #include "imu.h"
 
-//imu为mpu6050
+/**************imu为mpu6050*****************/
+
+/**
+ * @brief 计算零偏数据
+ * 
+ * @param 无
+ */
+//零偏数据
+int32_t acc_x_offset = 0;
+int32_t acc_y_offset = 0;
+int32_t acc_z_offset = 0;
+
+int32_t gyro_x_offset = 0;
+int32_t gyro_y_offset = 0;
+int32_t gyro_z_offset = 0;
+void imu_calculate_offset(void)
+{
+    acc_data new_acc = {0};
+    acc_data last_acc = {0};
+    uint16_t count = 0;
+
+    imu_GetAcc(&last_acc);
+    //1.等待静止,abs(new.acc-last.acc)<400达到100次
+    while (count < 100)
+    {    
+        imu_GetAcc(&new_acc);
+        if(abs(new_acc.ax - last_acc.ax) <400 && abs(new_acc.ay - last_acc.ay) <400 && abs(new_acc.az - last_acc.az) <400)
+        {
+            count++;
+        }
+        else
+        {
+            count = 0;
+        }
+        last_acc = new_acc;
+
+        osDelay(6);
+    }
+    //2.静止后计算零偏
+    Gyro_Acc_struct gyro_acc_data = {0};
+    int32_t acc_x_offset_sum = 0;
+    int32_t acc_y_offset_sum = 0;
+    int32_t acc_z_offset_sum = 0;
+
+    int32_t gyro_x_offset_sum = 0;
+    int32_t gyro_y_offset_sum = 0;
+    int32_t gyro_z_offset_sum = 0;
+
+    for(uint8_t i = 0; i<100; i++)
+    {
+        imu_GetGyro_Acc(&gyro_acc_data);
+        acc_x_offset_sum += gyro_acc_data.acc.ax - 0;
+        acc_y_offset_sum += gyro_acc_data.acc.ay - 0;
+        acc_z_offset_sum += gyro_acc_data.acc.az - 16384;
+
+        gyro_x_offset_sum += gyro_acc_data.gyro.gx - 0;
+        gyro_y_offset_sum += gyro_acc_data.gyro.gy - 0;
+        gyro_z_offset_sum += gyro_acc_data.gyro.gz - 0;
+
+        osDelay(6);
+    }
+    //取平均值
+    acc_x_offset = acc_x_offset_sum / 100;
+    acc_y_offset = acc_y_offset_sum / 100;
+    acc_z_offset = acc_z_offset_sum / 100;
+    gyro_x_offset = gyro_x_offset_sum / 100;
+    gyro_y_offset = gyro_y_offset_sum / 100;
+    gyro_z_offset = gyro_z_offset_sum / 100;
+}
+
 /**
  * @brief  Write a byte to the IMU
  * @param  reg: Register address
@@ -74,15 +143,15 @@ void imu_GetGyro(gyro_data *gyro)
     //x轴
     imu_Read_Reg(0x43,&hight);
     imu_Read_Reg(0x44,&low);
-    gyro->gx = ((hight<<8)|low) / 32768.0f * 2000;
+    gyro->gx = (int16_t)((hight<<8)|low) / 32768.0f * 2000 - gyro_x_offset;
     //y轴
     imu_Read_Reg(0x45,&hight);
     imu_Read_Reg(0x46,&low);
-    gyro->gy = ((hight<<8)|low) / 32768.0f * 2000;
+    gyro->gy = (int16_t)((hight<<8)|low) / 32768.0f * 2000 - gyro_y_offset;
     //z轴
     imu_Read_Reg(0x47,&hight);
     imu_Read_Reg(0x48,&low);
-    gyro->gz = ((hight<<8)|low) / 32768.0f * 2000;
+    gyro->gz = (int16_t)((hight<<8)|low) / 32768.0f * 2000 - gyro_z_offset;
 
 }
 /**
@@ -98,15 +167,15 @@ void imu_GetAcc(acc_data *acc)
     //x轴
     imu_Read_Reg(0x3B,&hight);
     imu_Read_Reg(0x3C,&low);
-    acc->ax = ((hight<<8)|low) / 32768.0f * 2;
+    acc->ax = (int16_t)((hight<<8)|low) / 32768.0f * 2 - acc_x_offset;
     //y轴
     imu_Read_Reg(0x3D,&hight);
     imu_Read_Reg(0x3E,&low);
-    acc->ay = ((hight<<8)|low) / 32768.0f * 2;
+    acc->ay = (int16_t)((hight<<8)|low) / 32768.0f * 2 - acc_y_offset;
     //z轴
     imu_Read_Reg(0x3F,&hight);
     imu_Read_Reg(0x40,&low);
-    acc->az = ((hight<<8)|low) / 32768.0f * 2;
+    acc->az = (int16_t)((hight<<8)|low) / 32768.0f * 2 - acc_z_offset;
 }
 /**
  * @brief  Get the gyroscope and acceleration data
@@ -120,3 +189,5 @@ void imu_GetGyro_Acc(Gyro_Acc_struct *Gyro_Acc)
     //2.读取加速度
     imu_GetAcc(&Gyro_Acc->acc);
 }
+
+
