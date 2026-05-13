@@ -33,7 +33,7 @@ virtualFolder:
                     - path: ../Core/Src/system_stm32f1xx.c
                     - path: ../Core/Src/tim.c
                     - path: ../Core/Src/usart.c
-                    - path: ../Core/Src/freertos.c
+                    - path: ../Core/Inc/FreeRTOSConfig.h
                   folders: []
                 - name: Hardware
                   files:
@@ -45,11 +45,24 @@ virtualFolder:
                 - name: Application
                   files:
                     - path: ../Core/application/app_flight.c
+                    - path: ../Core/application/app_freertos.c
                   folders: []
                 - name: commond_caculate
                   files:
                     - path: ../Core/common_caculate/filter.c
                     - path: ../Core/common_caculate/quaternion.c
+                  folders: []
+                - name: FreeRTOS
+                  files:
+                    - path: ../Core/Freertos/portable/MemMang/heap_4.c
+                    - path: ../Core/Freertos/portable/RVDS/ARM_CM3/port.c
+                    - path: ../Core/Freertos/source/croutine.c
+                    - path: ../Core/Freertos/source/event_groups.c
+                    - path: ../Core/Freertos/source/list.c
+                    - path: ../Core/Freertos/source/queue.c
+                    - path: ../Core/Freertos/source/stream_buffer.c
+                    - path: ../Core/Freertos/source/tasks.c
+                    - path: ../Core/Freertos/source/timers.c
                   folders: []
     - name: Drivers
       files: []
@@ -121,6 +134,9 @@ targets:
         - ../Core/common_caculate
         - ../Core/hardware
         - ../Core/Inc
+        - ../Core/Freertos/include
+        - ../Core/Freertos/portable/MemMang
+        - ../Core/Freertos/portable/RVDS/ARM_CM3
       libList: []
     excludeList: []
     settings: {}

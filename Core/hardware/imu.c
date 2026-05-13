@@ -36,7 +36,7 @@ void imu_calculate_offset(void)
         }
         last_acc = new_acc;
 
-        osDelay(6);
+        vTaskDelay(6);
     }
     //2.静止后计算零偏
     Gyro_Acc_struct gyro_acc_data = {0};
@@ -59,7 +59,7 @@ void imu_calculate_offset(void)
         gyro_y_offset_sum += gyro_acc_data.gyro.gy - 0;
         gyro_z_offset_sum += gyro_acc_data.gyro.gz - 0;
 
-        osDelay(6);
+        vTaskDelay(6);
     }
     //取平均值
     acc_x_offset = acc_x_offset_sum / 100;

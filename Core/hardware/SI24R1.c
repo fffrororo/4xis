@@ -235,7 +235,7 @@ int fputc(int ch, FILE *f)
 void SI24R1_Printf(char *format, ...)
 {
 	SI24R1_TX_Mode();
-	osDelay(1);
+	vTaskDelay(1);
 
     char string[TX_PLOAD_WIDTH] = {0};
 

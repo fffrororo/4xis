@@ -39,17 +39,17 @@ extern "C" {
 #include "math.h"
 #include <stdlib.h>
 // STM32
-#include "cmsis_os.h"
-#include "FreeRTOS.h"
 #include "usart.h"
 #include "tim.h"
 #include "i2c.h"
 #include "spi.h"
 #include "dma.h"
-// User
-#include "sbus.h"
-#include "Motor.h"
-#include "imu.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
+
+
+
 
 /* USER CODE END Includes */
 
@@ -118,8 +118,6 @@ extern uint8_t  USART2_DMA_RX_BUF[USART2_RX_BUFFER_SIZE];  // DMA接收缓冲区
 extern uint8_t  USART2_RX_BUF[USART2_RX_BUFFER_SIZE];      // 数据处理缓冲区
 extern uint16_t USART2_RX_LEN;                             // 一帧数据长度
 
-// FreeRTOS 信号量（用于通知任务数据已收到）
-extern osSemaphoreId_t uart2RxSemaphoreHandle;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
