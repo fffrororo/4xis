@@ -22,7 +22,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "sbus.h"
+#include "app_receive.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -253,32 +253,8 @@ void USART2_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-//环形缓冲区处理数据
-volatile uint16_t old_pos = 0;
-
 void UART_PROCESS(void)
 {
-  uint16_t new_pos;
-  new_pos = UART_DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart2_rx);
-
-  if(new_pos != old_pos)
-  {
-    //1.正常情况
-    if(new_pos > old_pos)
-    {
-      process_sbus(&uart_dma_data_buf[old_pos],new_pos-old_pos);
-    }
-    //2.数据溢出
-    else
-    {
-      process_sbus(&uart_dma_data_buf[old_pos],UART_DMA_BUF_SIZE-old_pos);
-      if(new_pos > 0)
-      {
-        process_sbus(&uart_dma_data_buf[0],new_pos);
-      }
-    }
-    //更新dma读取指针
-    old_pos = new_pos;
-  }
+    app_receive_isr_handler();
 }
 /* USER CODE END 1 */

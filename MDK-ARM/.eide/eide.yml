@@ -46,11 +46,13 @@ virtualFolder:
                   files:
                     - path: ../Core/application/app_flight.c
                     - path: ../Core/application/app_freertos.c
+                    - path: ../Core/application/app_receive.c
                   folders: []
                 - name: commond_caculate
                   files:
                     - path: ../Core/common_caculate/filter.c
                     - path: ../Core/common_caculate/quaternion.c
+                    - path: ../Core/common_caculate/PID.c
                   folders: []
                 - name: FreeRTOS
                   files:

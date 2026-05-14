@@ -1,4 +1,5 @@
 #include "quaternion.h"
+#include <stdint.h>
 
 /* ================= 四元数 ================= */
 
@@ -10,7 +11,10 @@ static float q3 = 0.0f;
 /* ================= PI参数 ================= */
 
 static float Kp = 0.8f;
-static float Ki = 0.003f;
+static float Ki = 0.005f;
+
+/* 加速度阈值：偏离1g超过此值则跳过重力修正 */
+#define ACC_TRUST_THRESH  0.15f
 
 /* ================= 积分误差 ================= */
 
@@ -28,11 +32,17 @@ static float ezInt = 0.0f;
 #define DEG_TO_RAD    0.0174533f
 
 
-/* ================= invSqrt ================= */
+/* ========= 快速平方根倒数（Quake III，适合无FPU的Cortex-M3） ========= */
 
 static float invSqrt(float x)
 {
-    return 1.0f / sqrtf(x);
+    union { float f; uint32_t i; } u;
+    float xhalf = 0.5f * x;
+    u.f = x;
+    u.i = 0x5f3759df - (u.i >> 1);
+    x = u.f;
+    x = x * (1.5f - xhalf * x * x);
+    return x;
 }
 
 
@@ -77,37 +87,47 @@ void Quaternion_GetEuler(Gyro_Acc_struct *imu,
     ay = (float)imu->acc.ay / ACC_SCALE;
     az = (float)imu->acc.az / ACC_SCALE;
 
-    /* ========= 加速度归一化 ========= */
+    /* ========= 加速度幅值计算及归一化 ========= */
 
-    norm = invSqrt(ax * ax + ay * ay + az * az);
+    float accMag = sqrtf(ax * ax + ay * ay + az * az);
+    int useAcc = (accMag >= 0.0001f);
 
-    ax *= norm;
-    ay *= norm;
-    az *= norm;
+    if (useAcc) {
+        float invMag = 1.0f / accMag;
+        ax *= invMag;
+        ay *= invMag;
+        az *= invMag;
 
-    /* ========= 重力方向 ========= */
+        /* 存在较大线性加速度时跳过重力修正，避免污染姿态 */
+        if (fabsf(accMag - 1.0f) > ACC_TRUST_THRESH)
+            useAcc = 0;
+    }
 
-    vx = 2.0f * (q1 * q3 - q0 * q2);
-    vy = 2.0f * (q0 * q1 + q2 * q3);
-    vz = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
+    if (useAcc) {
+        /* ========= 重力方向 ========= */
 
-    /* ========= 误差叉积 ========= */
+        vx = 2.0f * (q1 * q3 - q0 * q2);
+        vy = 2.0f * (q0 * q1 + q2 * q3);
+        vz = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
 
-    ex = (ay * vz - az * vy);
-    ey = (az * vx - ax * vz);
-    ez = (ax * vy - ay * vx);
+        /* ========= 误差叉积 ========= */
 
-    /* ========= 积分 ========= */
+        ex = (ay * vz - az * vy);
+        ey = (az * vx - ax * vz);
+        ez = (ax * vy - ay * vx);
 
-    exInt += ex * Ki * dt;
-    eyInt += ey * Ki * dt;
-    ezInt += ez * Ki * dt;
+        /* ========= 积分（不带dt，标准Mahony形式） ========= */
 
-    /* ========= PI修正 ========= */
+        exInt += ex * Ki;
+        eyInt += ey * Ki;
+        ezInt += ez * Ki;
 
-    gx += Kp * ex + exInt;
-    gy += Kp * ey + eyInt;
-    gz += Kp * ez + ezInt;
+        /* ========= PI修正 ========= */
+
+        gx += Kp * ex + exInt;
+        gy += Kp * ey + eyInt;
+        gz += Kp * ez + ezInt;
+    }
 
     /* ========= 四元数更新 ========= */
 
@@ -141,10 +161,12 @@ void Quaternion_GetEuler(Gyro_Acc_struct *imu,
             1.0f - 2.0f * (q1 * q1 + q2 * q2)
         ) * RAD_TO_DEG;
 
-    euler->pitch =
-        asinf(
-            2.0f * (q0 * q2 - q3 * q1)
-        ) * RAD_TO_DEG;
+    {
+        float pitch_arg = 2.0f * (q0 * q2 - q3 * q1);
+        if (pitch_arg >  1.0f) pitch_arg =  1.0f;
+        if (pitch_arg < -1.0f) pitch_arg = -1.0f;
+        euler->pitch = asinf(pitch_arg) * RAD_TO_DEG;
+    }
 
     euler->yaw =
         atan2f(
