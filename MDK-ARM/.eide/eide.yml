@@ -41,6 +41,7 @@ virtualFolder:
                     - path: ../Core/hardware/Motor.c
                     - path: ../Core/hardware/sbus.c
                     - path: ../Core/hardware/SI24R1.c
+                    - path: ../Core/hardware/LED.c
                   folders: []
                 - name: Application
                   files:
@@ -91,22 +92,6 @@ virtualFolder:
         - name: CMSIS
           files:
             - path: ../Core/Src/system_stm32f1xx.c
-          folders: []
-    - name: Middlewares
-      files: []
-      folders:
-        - name: FreeRTOS
-          files:
-            - path: ../Middlewares/Third_Party/FreeRTOS/Source/croutine.c
-            - path: ../Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
-            - path: ../Middlewares/Third_Party/FreeRTOS/Source/list.c
-            - path: ../Middlewares/Third_Party/FreeRTOS/Source/queue.c
-            - path: ../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
-            - path: ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c
-            - path: ../Middlewares/Third_Party/FreeRTOS/Source/timers.c
-            - path: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c
-            - path: ../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
-            - path: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3/port.c
           folders: []
     - name: ::CMSIS
       files: []

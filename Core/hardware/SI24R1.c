@@ -1,5 +1,9 @@
 #include "SI24R1.h"
 
+#ifdef SI24R1_DEBUG
+#include "PID.h"
+#endif
+
 uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0x0A,0x01,0x07,0x0E,0x01};  
 
 /**
@@ -208,45 +212,106 @@ uint8_t SI24R1_TxPacket(uint8_t *txbuf)
 	return 1;																						  //发送失败
 }
 
-/**********移植printf*************/
-// 发送字符串
-void SI24R1_SendString(char *str)
-{
-    uint8_t buf[TX_PLOAD_WIDTH] = {0};
+/********** 无线打印 + 远程调参 *************/
+#ifdef SI24R1_DEBUG
 
-    strncpy((char*)buf, str, TX_PLOAD_WIDTH - 1);
-	buf[TX_PLOAD_WIDTH - 1] = '\0';
+// ==================== 环形缓冲区 ====================
+static char print_ring[SI24R1_PRINT_BUF_SIZE];
+static volatile uint16_t ring_head = 0;
+static volatile uint16_t ring_tail = 0;
 
-    SI24R1_TxPacket(buf);
-}
-// 1. 重定向 fputc：无线发送单个字符
-int fputc(int ch, FILE *f)
-{
-    uint8_t buf[TX_PLOAD_WIDTH] = {0};
-
-    buf[0] = ch;
-
-    SI24R1_TxPacket(buf);
-
-    return ch;
-}
-
-// 2. 无线版 printf：用法和 printf / Serial_Printf 完全一样
+/**
+ * @brief 格式化写入环形缓冲区（不立即发送）
+ *        用法和 printf 完全一样，超过缓冲区长度自动截断
+ */
 void SI24R1_Printf(char *format, ...)
 {
-	SI24R1_TX_Mode();
-	vTaskDelay(1);
-
-    char string[TX_PLOAD_WIDTH] = {0};
-
+    char tmp[TX_PLOAD_WIDTH];
     va_list arg;
 
     va_start(arg, format);
-    vsnprintf(string, sizeof(string), format, arg);
+    int len = vsnprintf(tmp, sizeof(tmp), format, arg);
     va_end(arg);
 
-    SI24R1_TxPacket((uint8_t *)string);
+    if (len <= 0) return;
+    if (len > TX_PLOAD_WIDTH - 1) len = TX_PLOAD_WIDTH - 1;
 
-	SI24R1_RX_Mode();
+    for (int i = 0; i < len; i++) 
+	{
+        uint16_t next = (ring_head + 1) % SI24R1_PRINT_BUF_SIZE;
+        if (next == ring_tail) break; // 缓冲满，丢弃剩余
+        print_ring[ring_head] = tmp[i];
+        ring_head = next;
+    }
 }
+
+/**
+ * @brief 将环形缓冲区中的数据打包发送（主循环中调用）
+ *        攒够 31 字节发一包，不满则补 \0 发送
+ */
+void SI24R1_Flush(void)
+{
+    if (ring_tail == ring_head) return; // 无数据
+
+    SI24R1_TX_Mode();
+
+    while (ring_tail != ring_head) 
+	{
+        uint8_t buf[TX_PLOAD_WIDTH] = {0};
+        uint8_t cnt = 0;
+
+        while (ring_tail != ring_head && cnt < TX_PLOAD_WIDTH - 1) 
+		{
+            buf[cnt++] = print_ring[ring_tail];
+            ring_tail = (ring_tail + 1) % SI24R1_PRINT_BUF_SIZE;
+        }
+        SI24R1_TxPacket(buf);
+    }
+
+    SI24R1_RX_Mode();
+}
+
+// ==================== 远程调参接收解析 ====================
+// 命令格式: "pitch.kp=1.23" "gyro.ki=0.45" "pitch.kd=2.0"
+// 对应 app_flight.c 中的 PID 变量
+
+extern PID_Struct pitch_pid;
+extern PID_Struct gyro_y_pid;
+
+void SI24R1_ProcessRx(void)
+{
+    uint8_t rxbuf[TX_PLOAD_WIDTH];
+
+    if (SI24R1_RxPacket(rxbuf) != 0) return;
+
+    rxbuf[TX_PLOAD_WIDTH - 1] = '\0';
+    float val;
+
+    if (sscanf((char*)rxbuf, "pitch.kp=%f", &val) == 1)
+	{
+        pitch_pid.kp = val;
+    } 
+	else if (sscanf((char*)rxbuf, "pitch.ki=%f", &val) == 1) 
+	{
+        pitch_pid.ki = val;
+    } 
+	else if (sscanf((char*)rxbuf, "pitch.kd=%f", &val) == 1) 
+	{
+        pitch_pid.kd = val;
+    } 
+	else if (sscanf((char*)rxbuf, "gyro.kp=%f", &val) == 1) 
+	{
+        gyro_y_pid.kp = val;
+    } 
+	else if (sscanf((char*)rxbuf, "gyro.ki=%f", &val) == 1)
+	{
+        gyro_y_pid.ki = val;
+    }
+	else if (sscanf((char*)rxbuf, "gyro.kd=%f", &val) == 1)
+	{
+        gyro_y_pid.kd = val;
+    }
+}
+
+#endif /* SI24R1_DEBUG */
 

@@ -1,6 +1,10 @@
 #include "app_flight.h"
-#include "app_receive.h"
 
+
+//飞行状态
+FLIGHT_STATE flight_state = IDLE;
+
+//获取的imu数据
 Gyro_Acc_struct imu_get_data = {0};
 Euler_struct euler_angles = {0};
 gyro_data last_gyro_data = {0};
@@ -9,6 +13,19 @@ gyro_data last_gyro_data = {0};
 PID_Struct pitch_pid = {.kp = 0, .ki = 0, .kd = 0};
 PID_Struct gyro_y_pid = {.kp = 0, .ki = 0, .kd = 0};//对应俯仰角内环
 
+//横滚角pid控制
+PID_Struct roll_pid = {.kp = 0, .ki = 0, .kd = 0};
+PID_Struct gyro_x_pid = {.kp = 0, .ki = 0, .kd = 0};
+
+//偏航角pid控制
+PID_Struct yaw_pid = {.kp = 0, .ki = 0, .kd = 0};
+PID_Struct gyro_z_pid = {.kp = 0, .ki = 0, .kd = 0};
+
+//电机结构体
+Motor_Struct left_top_motor = {.htim = &htim3, .channel = TIM_CHANNEL_1, .speed = 0};
+Motor_Struct right_top_motor = {.htim = &htim2, .channel = TIM_CHANNEL_2, .speed = 0};
+Motor_Struct left_bottom_motor = {.htim = &htim4, .channel = TIM_CHANNEL_4, .speed = 0};
+Motor_Struct right_bottom_motor = {.htim = &htim1, .channel = TIM_CHANNEL_3, .speed = 0};
 
 /**
  * @brief 获取姿态角
@@ -39,6 +56,7 @@ void app_flight_get_euler_angles(void)
 
 void app_flight_pid_process(void)
 {
+    //俯仰角
     //1.外环角度控制 —— 目标值来自遥控器
     pitch_pid.target = rc_data.pitch_target;
     pitch_pid.measure = euler_angles.pitch;
@@ -49,4 +67,65 @@ void app_flight_pid_process(void)
 
     //3.串级pid控制
     PID_Calc_Chain(&pitch_pid, &gyro_y_pid);
+
+    //横滚角
+    //1.外环角度控制 —— 目标值来自遥控器
+    roll_pid.target = rc_data.roll_target;
+    roll_pid.measure = euler_angles.roll;
+
+    //2.内环角速度控制
+    gyro_x_pid.target = roll_pid.output;
+    gyro_x_pid.measure = imu_get_data.gyro.gx;
+
+    //3.串级pid控制
+    PID_Calc_Chain(&roll_pid, &gyro_x_pid);
+
+    //偏航角
+    //1.外环角度控制 —— 目标值来自遥控器
+    yaw_pid.target = rc_data.yaw_target;
+    yaw_pid.measure = euler_angles.yaw;
+
+    //2.内环角速度控制
+    gyro_z_pid.target = yaw_pid.output;
+    gyro_z_pid.measure = imu_get_data.gyro.gz;
+
+    //3.串级pid控制
+    PID_Calc_Chain(&yaw_pid, &gyro_z_pid);
+}
+
+void app_flight_motor_control(void)
+{
+    switch (flight_state)
+    {
+    case IDLE:
+        //一旦进入加锁状态所有电机速度都为0
+        left_top_motor.speed = 0;
+        right_top_motor.speed = 0;
+        left_bottom_motor.speed = 0;
+        right_bottom_motor.speed = 0;
+        break;
+    case NORMAL:
+        //一旦进入加锁状态所有电机速度都为0
+        left_top_motor.speed = 0;
+        right_top_motor.speed = 0;
+        left_bottom_motor.speed = 0;
+        right_bottom_motor.speed = 0;
+        break;
+    case FIX_HEIGHT:
+
+
+        break;
+
+    case FAIL:
+
+        break;
+    default:
+        break;
+    }
+
+    //设置电机速度
+    Motor_Setspeed(&left_top_motor);
+    Motor_Setspeed(&right_top_motor);
+    Motor_Setspeed(&left_bottom_motor);
+    Motor_Setspeed(&right_bottom_motor);
 }

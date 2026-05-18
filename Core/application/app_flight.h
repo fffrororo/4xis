@@ -9,20 +9,26 @@
 #include "quaternion.h"
 #include "pid.h"
 #include "motor.h"
+#include "app_receive.h"
+#include "LED.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
+typedef enum{
+    IDLE = 0,
+    NORMAL,
+    FIX_HEIGHT,
+    FAIL,
+}FLIGHT_STATE;
+extern FLIGHT_STATE flight_state;
 
 
 void app_flight_get_euler_angles(void);
 
 void app_flight_pid_process(void);
 
-#ifdef __cplusplus
-}
-#endif
+void app_flight_motor_control(void);
+
+
 #endif
 
 

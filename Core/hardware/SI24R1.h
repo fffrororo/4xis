@@ -2,6 +2,14 @@
 #define __nRF24L01P__
 
 #include "main.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+
+// ==================== 调试开关 ====================
+// 打开此宏：启用无线打印和远程调参
+// 注释此宏：所有 SI24R1_Printf 调用编译为空，零开销
+#define SI24R1_DEBUG
 
 //SPI片选
 //拉低片选
@@ -69,7 +77,7 @@
 //                                        FUNCTION's PROTOTYPES                                                       //
 //********************************************************************************************************************//
 //SI24R1 API Functions
-uint8_t SI24R1_Write_Reg(uint8_t reg, uint8_t value); 
+uint8_t SI24R1_Write_Reg(uint8_t reg, uint8_t value);
 uint8_t SI24R1_Write_Buf(uint8_t reg, const uint8_t *pBuf, uint8_t bytes);
 uint8_t SI24R1_Read_Reg(uint8_t reg);
 uint8_t SI24R1_Read_Buf(uint8_t reg, uint8_t *pBuf, uint8_t bytes);
@@ -79,9 +87,23 @@ void SI24R1_TX_Mode(void);
 uint8_t SI24R1_RxPacket(uint8_t *rxbuf);
 uint8_t SI24R1_TxPacket(uint8_t *txbuf);
 
-//移植的printf
-int fputc(int ch, FILE *f);
+// ==================== 无线打印 + 远程调参 ====================
+#ifdef SI24R1_DEBUG
+
+#define SI24R1_PRINT_BUF_SIZE 256
+
 void SI24R1_Printf(char *format, ...);
+void SI24R1_Flush(void);
+void SI24R1_ProcessRx(void);
+
+#else
+
+// 调试关闭时，所有调用编译为空
+#define SI24R1_Printf(...) ((void)0)
+#define SI24R1_Flush()     ((void)0)
+#define SI24R1_ProcessRx() ((void)0)
+
+#endif
 //********************************************************************************************************************//
 #endif
 

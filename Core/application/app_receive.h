@@ -4,6 +4,14 @@
 #include "main.h"
 #include "sbus.h"
 
+//输出限幅
+#define MAX_ROLL_ANGLE   10.0f   // 横滚最大角 (°)
+#define MAX_PITCH_ANGLE  10.0f   // 俯仰最大角 (°)
+#define MAX_YAW_RATE     200.0f  // 偏航最大角速度 (°/s)
+
+//SBUS 连接超时 (ms)
+#define SBUS_TIMEOUT_MS  100
+
 extern DMA_HandleTypeDef hdma_usart2_rx;
 
 /* 遥控器数据结构 */
@@ -21,7 +29,13 @@ typedef struct {
     uint8_t updated;        /* 本周期有新遥控数据 */
 } RC_Data_t;
 
+typedef enum {
+    REMOTE_CONNECTED = 0,
+    REMOTE_DISCONNECTED,
+} Remote_state;
+
 extern RC_Data_t rc_data;
+extern Remote_state remote_state;
 
 void app_receive_isr_handler(void);
 RC_Data_t* app_receive_getdata(void);

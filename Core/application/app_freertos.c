@@ -1,5 +1,12 @@
 #include "app_freertos.h"
 #include "app_receive.h"
+#include "LED.h"
+
+//led灯结构体
+LED_STRUCT left_top_led = {.gpio = LED1_GPIO_Port, .pin = LED1_Pin};
+LED_STRUCT right_top_led = {.gpio = LED2_GPIO_Port, .pin = LED2_Pin};
+LED_STRUCT left_bottom_led = {.gpio = LED3_GPIO_Port, .pin = LED3_Pin};
+LED_STRUCT right_bottom_led = {.gpio = LED4_GPIO_Port, .pin = LED4_Pin};
 
 // 飞行任务
 void flight_task(void *pvParameters);
@@ -18,9 +25,10 @@ TaskHandle_t sbus_task_handle;
 //led 任务
 void led_task(void *pvParameters);
 #define LED_TASK_STACK_SIZE 128
-#define LED_TASK_PRIORITY 2
+#define LED_TASK_PRIORITY 1
 TaskHandle_t led_task_handle;
-#define LED_TASK_PERIOD_MS 6
+#define LED_TASK_PERIOD_MS 100
+
 
 /**
  * @brief  启动FreeRTOS task
@@ -72,6 +80,7 @@ void flight_task(void *pvParameters)
         //1.执行任务
         app_flight_get_euler_angles();
         app_flight_pid_process();
+        app_flight_motor_control();
         //2.任务延时
         vTaskDelayUntil(&xLastWakeTime, FLIGHT_TASK_PERIOD_MS);
     }
@@ -98,10 +107,65 @@ void led_task(void *pvParameters)
 {
     //获取对应基准时间
     TickType_t xLastWakeTime = xTaskGetTickCount();
+    uint8_t count = 0;
     while(1)
     {
-        //1.执行任务：LED 闪烁
+        count ++;
+        //1.执行任务
+        switch (remote_state)
+        {
+        case REMOTE_CONNECTED:
+            //灯常亮
+            LED_ON(&left_top_led);
+            LED_ON(&right_top_led);
+            break;
+        case REMOTE_DISCONNECTED:
+            //灯闪烁
+            if(count % 5 == 0)
+            {
+                LED_Toggle(&left_top_led);
+                LED_Toggle(&right_top_led);
+            }
+            break;
+        default:
+            break;
+        }
+        switch (flight_state)
+        {
+        case IDLE:
+            //灯500ms闪烁
+            if(count % 5 == 0)
+            {
+                LED_Toggle(&left_bottom_led);
+                LED_Toggle(&right_bottom_led);
+            }
+            break;
         
+        case NORMAL:
+            //灯200ms闪烁
+            if(count % 2 == 0)
+            {
+                LED_Toggle(&left_bottom_led);
+                LED_Toggle(&right_bottom_led);
+            }
+            break;
+
+        case FIX_HEIGHT:
+            //灯常亮
+            LED_ON(&left_bottom_led);
+            LED_ON(&right_bottom_led);
+            break;
+        
+        case FAIL:
+            //灯灭
+            LED_OFF(&left_bottom_led);
+            LED_OFF(&right_bottom_led);
+            break;
+
+        default:
+            break;
+        }
+        if(count >= 10)count = 0;
 
         //2.任务延时
         vTaskDelayUntil(&xLastWakeTime, LED_TASK_PERIOD_MS);

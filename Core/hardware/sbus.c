@@ -80,3 +80,39 @@ void process_sbus(uint8_t *data,uint16_t len)
 		}
 	}
 }
+
+//将原始通道值线性映射到 [out_min, out_max],处理油门
+float map_channel(int16_t raw, float out_min, float out_max)
+{
+    if(raw <= RC_CH_MIN) return out_min;
+    if(raw >= RC_CH_MAX) return out_max;
+    return out_min + (out_max - out_min) * (raw - RC_CH_MIN) / (float)(RC_CH_MAX - RC_CH_MIN);
+}
+
+//将摇杆通道值对称映射到 [-max_out, +max_out]，含中位死区，处理角度
+float map_stick_sym(int16_t raw, float max_out)
+{
+    if(raw > RC_CH_MID - RC_DEADBAND && raw < RC_CH_MID + RC_DEADBAND)
+        return 0.0f;
+
+    if(raw <= RC_CH_MID)
+    {
+        float ratio = (float)(RC_CH_MID - raw) / (float)(RC_CH_MID - RC_CH_MIN);
+        if(ratio > 1.0f) ratio = 1.0f;
+        return -max_out * ratio;
+    }
+    else
+    {
+        float ratio = (float)(raw - RC_CH_MID) / (float)(RC_CH_MAX - RC_CH_MID);
+        if(ratio > 1.0f) ratio = 1.0f;
+        return max_out * ratio;
+    }
+}
+
+//根据通道值判定三档开关位置: 0=低, 1=中, 2=高
+uint8_t map_3pos_switch(int16_t raw)
+{
+    if(raw < SW_LOW_THRESH)  return 0;
+    if(raw > SW_HIGH_THRESH) return 2;
+    return 1;
+}
