@@ -3,9 +3,6 @@
 
 #include "main.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct
 {
@@ -18,8 +15,6 @@ void Motor_Setspeed(Motor_Struct *motor);
 void Motor_Init(Motor_Struct *motor);
 
 
-#ifdef __cplusplus
-}
-#endif
+
 
 #endif

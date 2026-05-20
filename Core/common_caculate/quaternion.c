@@ -25,9 +25,6 @@ static float ezInt = 0.0f;
 
 /* ================= 宏定义 ================= */
 
-#define GYRO_SCALE    16.4f      // ±2000dps
-#define ACC_SCALE     16384      // ±2g
-
 #define RAD_TO_DEG    57.2957795f
 #define DEG_TO_RAD    0.0174533f
 
@@ -78,14 +75,15 @@ void Quaternion_GetEuler(Gyro_Acc_struct *imu,
     float qa, qb, qc;
 
     /* ========= 数据转换 ========= */
+    //imu 层已输出物理量：gyro(°/s)、acc(g)，直接转换为 rad/s 和归一化即可
 
-    gx = ((float)imu->gyro.gx / GYRO_SCALE) * DEG_TO_RAD;
-    gy = ((float)imu->gyro.gy / GYRO_SCALE) * DEG_TO_RAD;
-    gz = ((float)imu->gyro.gz / GYRO_SCALE) * DEG_TO_RAD;
+    gx = (float)imu->gyro.gx * DEG_TO_RAD;
+    gy = (float)imu->gyro.gy * DEG_TO_RAD;
+    gz = (float)imu->gyro.gz * DEG_TO_RAD;
 
-    ax = (float)imu->acc.ax / ACC_SCALE;
-    ay = (float)imu->acc.ay / ACC_SCALE;
-    az = (float)imu->acc.az / ACC_SCALE;
+    ax = (float)imu->acc.ax;
+    ay = (float)imu->acc.ay;
+    az = (float)imu->acc.az;
 
     /* ========= 加速度幅值计算及归一化 ========= */
 

@@ -21,7 +21,6 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-#define USART2_RX_BUFFER_SIZE  26
 
 uint8_t  USART2_DMA_RX_BUF[USART2_RX_BUFFER_SIZE];
 uint8_t  USART2_RX_BUF[USART2_RX_BUFFER_SIZE];
@@ -58,8 +57,6 @@ void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
   //开启空闲中断
   __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);
-  //开启dma接收数据
-  HAL_UART_Receive_DMA(&huart2, USART2_DMA_RX_BUF, USART2_RX_BUFFER_SIZE);
   /* USER CODE END USART2_Init 2 */
 
 }

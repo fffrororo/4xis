@@ -75,6 +75,11 @@ void flight_task(void *pvParameters)
     //获取对应基准时间
     TickType_t xLastWakeTime = xTaskGetTickCount();
     imu_init();
+    imu_calculate_offset();
+    Motor_Init(&left_top_motor);
+    Motor_Init(&right_top_motor);
+    Motor_Init(&left_bottom_motor);
+    Motor_Init(&right_bottom_motor);
     while(1)
     {
         //1.执行任务
@@ -94,10 +99,19 @@ void sbus_task(void *pvParameters)
     {
         //1.执行任务：从 DMA 缓冲区读取 SBUS 数据并处理为遥控目标值
         RC_Data_t *p_rc = app_receive_getdata();
-        if (p_rc->updated) {
+        if (p_rc->updated) 
+        {
             // 遥控数据已更新，rc_data 可供 flight_task 直接引用
         }
 
+        if (remote_state == REMOTE_CONNECTED && rc_data.ch5_sw == 2) 
+        {
+            flight_state = NORMAL;
+        } 
+        else 
+        {
+            flight_state = IDLE;
+        }   
         //2.任务延时
         vTaskDelayUntil(&xLastWakeTime, SBUS_TASK_PERIOD_MS);
     }

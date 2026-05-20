@@ -42,6 +42,7 @@ void imu_init(void);
 void imu_GetGyro(gyro_data *gyro);
 void imu_GetAcc(acc_data *acc);
 void imu_GetGyro_Acc(Gyro_Acc_struct *Gyro_Acc);
+void imu_calculate_offset(void);
 
 
 #ifdef __cplusplus

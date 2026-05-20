@@ -103,12 +103,11 @@ void imu_init(void)
 { 
     //1，重启芯片，重置寄存器的值 => 写电源管理器0x6B
     imu_Write_Reg(0x6B,0x80);
-    uint8_t data;
+    uint8_t data = 0;
     //2. 等待复位完成
-    while(data != 0x40){
+    do{
         imu_Read_Reg(0x6B,&data);
-
-    }
+    }while(data != 0x40);
     //唤醒mpu6050
     imu_Write_Reg(0x6B,0x00);
     //选择合适量程

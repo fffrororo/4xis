@@ -21,6 +21,11 @@ typedef enum{
 }FLIGHT_STATE;
 extern FLIGHT_STATE flight_state;
 
+extern Motor_Struct left_top_motor;
+extern Motor_Struct right_top_motor;
+extern Motor_Struct left_bottom_motor;
+extern Motor_Struct right_bottom_motor;
+
 
 void app_flight_get_euler_angles(void);
 
