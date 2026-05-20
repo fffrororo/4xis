@@ -1,5 +1,6 @@
 #include "app_flight.h"
 
+#define CLAMP(x, min, max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
 
 //飞行状态
 FLIGHT_STATE flight_state = IDLE;
@@ -105,12 +106,32 @@ void app_flight_motor_control(void)
         right_bottom_motor.speed = 0;
         break;
     case NORMAL:
-        //一旦进入加锁状态所有电机速度都为0
-        left_top_motor.speed = 0;
-        right_top_motor.speed = 0;
-        left_bottom_motor.speed = 0;
-        right_bottom_motor.speed = 0;
+    {
+        // 油门基值映射到 PWM 范围 (1000~2000us)
+        uint16_t base_throttle = (uint16_t)(1000.0f + rc_data.throttle * 1000.0f);
+
+        // 获取串级 PID 内环输出
+        float pitch_out = gyro_y_pid.output;
+        float roll_out  = gyro_x_pid.output;
+        float yaw_out   = gyro_z_pid.output;
+
+        // X 型四轴电机混控
+        // M1 前左(CCW):  油门 + 俯仰 + 横滚 - 偏航
+        // M2 前右(CW):   油门 + 俯仰 - 横滚 + 偏航
+        // M3 后左(CW):   油门 - 俯仰 + 横滚 + 偏航
+        // M4 后右(CCW):  油门 - 俯仰 - 横滚 - 偏航
+        int16_t m1 = (int16_t)(base_throttle + pitch_out + roll_out - yaw_out);
+        int16_t m2 = (int16_t)(base_throttle + pitch_out - roll_out + yaw_out);
+        int16_t m3 = (int16_t)(base_throttle - pitch_out + roll_out + yaw_out);
+        int16_t m4 = (int16_t)(base_throttle - pitch_out - roll_out - yaw_out);
+
+        // 限幅到电调有效范围
+        left_top_motor.speed     = (uint16_t)CLAMP(m1, 1000, 2000);
+        right_top_motor.speed    = (uint16_t)CLAMP(m2, 1000, 2000);
+        left_bottom_motor.speed  = (uint16_t)CLAMP(m3, 1000, 2000);
+        right_bottom_motor.speed = (uint16_t)CLAMP(m4, 1000, 2000);
         break;
+    }
     case FIX_HEIGHT:
 
 
